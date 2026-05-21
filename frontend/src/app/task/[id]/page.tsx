@@ -5,11 +5,11 @@ import { useTaskEvents } from '@/hooks/useTaskEvents';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 
-const TOOL_COLORS: Record<string, string> = {
-  web_search: 'bg-blue-900 text-blue-200',
-  web_fetch: 'bg-teal-900 text-teal-200',
-  code_runner: 'bg-amber-900 text-amber-200',
-  file_writer: 'bg-purple-900 text-purple-200',
+const TOOL_STYLE: Record<string, { bg: string; color: string }> = {
+  web_search: { bg: 'rgba(13,138,158,.2)', color: '#12B2C1' },
+  web_fetch: { bg: 'rgba(35,113,123,.2)', color: '#7ab8be' },
+  code_runner: { bg: 'rgba(186,117,23,.2)', color: '#FAC775' },
+  file_writer: { bg: 'rgba(83,74,183,.2)', color: '#AFA9EC' },
 };
 
 export default function TaskPage() {
@@ -45,63 +45,147 @@ export default function TaskPage() {
   }, [events.length]);
 
   return (
-    <main className='min-h-screen bg-gray-950 text-white'>
-      <div className='max-w-3xl mx-auto p-6'>
-        <div className='flex items-center gap-3 mb-6'>
-          <Link
-            href='/history'
-            className='text-gray-600 hover:text-gray-400 text-sm transition'
-          >
-            ← History
-          </Link>
-          <div
-            className={`w-2 h-2 rounded-full ${
-              connected ? 'bg-green-400 animate-pulse' : 'bg-gray-600'
-            }`}
-          />
-          <span className='text-gray-400 text-sm font-mono'>
-            {id?.slice(0, 8)}
+    <main
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#1F2B2D',
+        color: '#E5F9F8',
+      }}
+    >
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '24px' }}>
+        {/* Nav */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '24px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Link
+              href='/history'
+              style={{
+                fontSize: '12px',
+                color: '#7ab8be',
+                textDecoration: 'none',
+              }}
+            >
+              ← History
+            </Link>
+            <div
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: connected ? '#12B2C1' : '#4a7f85',
+              }}
+            />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: '#7ab8be',
+              }}
+            >
+              {id?.slice(0, 8)}
+            </span>
+            {isDone && (
+              <span
+                style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '20px',
+                  background: 'rgba(18,178,193,.15)',
+                  color: '#12B2C1',
+                  fontWeight: 500,
+                }}
+              >
+                Done
+              </span>
+            )}
+            {isError && (
+              <span
+                style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '20px',
+                  background: 'rgba(226,75,74,.15)',
+                  color: '#f09595',
+                  fontWeight: 500,
+                }}
+              >
+                Error
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: '16px', fontWeight: 500, color: '#12B2C1' }}>
+            Operative
           </span>
-          {isDone && (
-            <span className='text-green-400 text-xs bg-green-900/40 px-2 py-0.5 rounded-full'>
-              Done
-            </span>
-          )}
-          {isError && (
-            <span className='text-red-400 text-xs bg-red-900/40 px-2 py-0.5 rounded-full'>
-              Error
-            </span>
-          )}
         </div>
 
+        {/* Goal */}
         {goal && (
-          <p className='text-gray-300 text-sm italic mb-6 border-l-2 border-gray-700 pl-3'>
+          <p
+            style={{
+              fontSize: '13px',
+              color: '#7ab8be',
+              fontStyle: 'italic',
+              borderLeft: '2px solid #23717B',
+              paddingLeft: '12px',
+              marginBottom: '20px',
+              lineHeight: 1.5,
+            }}
+          >
             "{goal}"
           </p>
         )}
 
+        {/* Progress */}
         {plan && (
-          <div className='mb-6'>
-            <div className='flex justify-between text-xs text-gray-500 mb-1'>
+          <div style={{ marginBottom: '20px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: '#4a7f85',
+                marginBottom: '6px',
+              }}
+            >
               <span>Subtasks</span>
               <span>
                 {completedIds.size} / {plan.length}
               </span>
             </div>
-            <div className='flex gap-1'>
+            <div style={{ display: 'flex', gap: '3px' }}>
               {plan.map((s: any) => (
                 <div
                   key={s.id}
-                  className={`h-1 flex-1 rounded-full transition-colors duration-500 ${
-                    completedIds.has(s.id) ? 'bg-blue-500' : 'bg-gray-700'
-                  }`}
+                  style={{
+                    height: '3px',
+                    flex: 1,
+                    borderRadius: '2px',
+                    background: completedIds.has(s.id) ? '#12B2C1' : '#243436',
+                    border: '0.5px solid #23717B',
+                    transition: 'background 0.4s',
+                  }}
                 />
               ))}
             </div>
           </div>
         )}
 
-        <div className='space-y-2 mb-8'>
+        {/* Event log */}
+        <div
+          style={{
+            background: '#243436',
+            border: '0.5px solid rgba(35,113,123,.3)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            marginBottom: '16px',
+          }}
+        >
           {events
             .filter((e) => e.type !== 'token')
             .map((e, i) => (
@@ -109,22 +193,72 @@ export default function TaskPage() {
             ))}
         </div>
 
+        {/* Streaming synthesis */}
         {synthTokens && !isDone && (
-          <div className='bg-gray-900 rounded-xl p-4 mb-6 border border-gray-800'>
-            <p className='text-gray-500 text-xs mb-2'>Synthesizing...</p>
-            <div className='text-sm text-gray-300 font-mono whitespace-pre-wrap'>
+          <div
+            style={{
+              background: '#243436',
+              border: '0.5px solid #23717B',
+              borderRadius: '10px',
+              padding: '14px 16px',
+              marginBottom: '16px',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '11px',
+                color: '#4a7f85',
+                marginBottom: '8px',
+              }}
+            >
+              Synthesizing...
+            </p>
+            <div
+              style={{
+                fontSize: '13px',
+                color: '#7ab8be',
+                fontFamily: 'var(--font-mono)',
+                whiteSpace: 'pre-wrap',
+                lineHeight: 1.6,
+              }}
+            >
               {synthTokens}
-              <span className='inline-block w-0.5 h-3 bg-gray-400 animate-pulse ml-0.5' />
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '2px',
+                  height: '13px',
+                  background: '#12B2C1',
+                  marginLeft: '2px',
+                  verticalAlign: 'text-bottom',
+                  animation: 'pulse 0.8s ease-in-out infinite',
+                }}
+              />
             </div>
           </div>
         )}
 
+        {/* Final output */}
         {isDone && finalOutput && (
-          <div className='bg-gray-900 rounded-xl p-6 border border-gray-700'>
-            <h2 className='text-sm font-medium text-gray-400 mb-4'>
-              Final Output
-            </h2>
-            <div className='prose prose-invert prose-sm max-w-none'>
+          <div
+            style={{
+              background: '#243436',
+              border: '0.5px solid #23717B',
+              borderRadius: '10px',
+              padding: '20px 24px',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '11px',
+                color: '#4a7f85',
+                marginBottom: '14px',
+                letterSpacing: '.04em',
+              }}
+            >
+              FINAL OUTPUT
+            </p>
+            <div className='prose-operative'>
               <ReactMarkdown>{finalOutput}</ReactMarkdown>
             </div>
           </div>
@@ -132,21 +266,42 @@ export default function TaskPage() {
 
         <div ref={bottomRef} />
       </div>
+
+      <style>{`
+        .prose-operative { font-size: 13px; line-height: 1.7; color: #E5F9F8; }
+        .prose-operative h1, .prose-operative h2, .prose-operative h3 { color: #12B2C1; font-weight: 500; margin: 16px 0 8px; }
+        .prose-operative h1 { font-size: 18px; }
+        .prose-operative h2 { font-size: 15px; }
+        .prose-operative h3 { font-size: 13px; }
+        .prose-operative p { margin: 8px 0; color: #E5F9F8; }
+        .prose-operative ul, .prose-operative ol { padding-left: 20px; margin: 8px 0; }
+        .prose-operative li { margin: 4px 0; color: #E5F9F8; }
+        .prose-operative code { background: #1F2B2D; color: #12B2C1; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+        .prose-operative pre { background: #1F2B2D; border: 0.5px solid #23717B; border-radius: 8px; padding: 12px 14px; overflow-x: auto; margin: 12px 0; }
+        .prose-operative pre code { background: none; padding: 0; color: #7ab8be; }
+        .prose-operative table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+        .prose-operative th { background: #1F2B2D; color: #12B2C1; padding: 8px 12px; text-align: left; border: 0.5px solid #23717B; font-weight: 500; }
+        .prose-operative td { padding: 8px 12px; border: 0.5px solid rgba(35,113,123,.3); color: #E5F9F8; }
+        .prose-operative tr:nth-child(even) td { background: rgba(35,113,123,.05); }
+        .prose-operative strong { color: #12B2C1; font-weight: 500; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0} }
+      `}</style>
     </main>
   );
 }
 
 function EventRow({ event }: { event: { type: string; payload: any } }) {
   const { type, payload } = event;
+  const tool = payload?.tool;
 
   const label: Record<string, string> = {
     'task:start': '🚀 Task started',
     'planner:start': '🧠 Planning...',
     'planner:done': `📋 Plan ready — ${payload.subtasks?.length} subtasks`,
     'subtask:start': `▶ ${payload.task}`,
-    'subtask:done': `✓ Done: ${payload.summary?.slice(0, 80)}...`,
-    'tool:input': `→ ${payload.tool}: ${String(payload.input).slice(0, 60)}`,
-    'tool:result': `← Result: ${String(payload.result).slice(0, 80)}`,
+    'subtask:done': `✓ ${payload.summary?.slice(0, 80)}...`,
+    'tool:input': `→ ${String(payload.input).slice(0, 60)}`,
+    'tool:result': `← ${String(payload.result).slice(0, 80)}`,
     'synthesizer:start': '✍ Synthesizing final output...',
     'synthesizer:done': '✅ Output ready',
     'task:done': '🎉 Task complete',
@@ -159,27 +314,44 @@ function EventRow({ event }: { event: { type: string; payload: any } }) {
   const isDone = ['task:done', 'subtask:done', 'synthesizer:done'].includes(
     type
   );
+  const ts = TOOL_STYLE[tool];
 
   return (
     <div
-      className={`flex items-start gap-3 text-xs py-1.5 px-2 rounded-lg
-      ${
-        isError
-          ? 'bg-red-900/20 text-red-300'
-          : isDone
-          ? 'text-green-300'
-          : 'text-gray-400'
-      }`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '5px 0',
+        borderBottom: '0.5px solid rgba(35,113,123,.15)',
+        fontSize: '12px',
+        color: isError ? '#f09595' : isDone ? '#7ddba8' : '#7ab8be',
+      }}
     >
-      <span className='font-mono opacity-40 shrink-0'>{type}</span>
-      <span>{text}</span>
-      {payload.tool && (
+      <span
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '10px',
+          color: '#4a7f85',
+          minWidth: '100px',
+          flexShrink: 0,
+        }}
+      >
+        {type}
+      </span>
+      <span style={{ flex: 1 }}>{text}</span>
+      {ts && (
         <span
-          className={`ml-auto text-xs px-1.5 py-0.5 rounded ${
-            TOOL_COLORS[payload.tool] ?? ''
-          }`}
+          style={{
+            fontSize: '10px',
+            padding: '2px 7px',
+            borderRadius: '4px',
+            background: ts.bg,
+            color: ts.color,
+            flexShrink: 0,
+          }}
         >
-          {payload.tool}
+          {tool}
         </span>
       )}
     </div>

@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --op-bg: #1f2b2d;
+  --op-surface: #243436;
+  --op-surface2: #2a3d40;
+  --op-border: #23717b;
+  --op-accent: #0d8a9e;
+  --op-bright: #12b2c1;
+  --op-light: #e5f9f8;
+  --op-muted: #7ab8be;
+  --op-dim: #4a7f85;
+}
+
+body {
+  background-color: #1f2b2d;
+  color: #e5f9f8;
+  font-family: var(--font-sans);
+}

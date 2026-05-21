@@ -12,13 +12,6 @@ type Task = {
   completed_at: string | null;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  done: 'bg-green-900/40 text-green-400',
-  running: 'bg-blue-900/40 text-blue-400',
-  queued: 'bg-gray-800 text-gray-400',
-  error: 'bg-red-900/40 text-red-400',
-};
-
 function timeAgo(date: string) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
   if (seconds < 60) return `${seconds}s ago`;
@@ -33,6 +26,13 @@ function duration(created: string, completed: string | null) {
   const s = Math.floor(ms / 1000);
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
 }
+
+const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+  done: { bg: 'rgba(18,178,193,.15)', color: '#12B2C1' },
+  running: { bg: 'rgba(13,138,158,.2)', color: '#0D8A9E' },
+  queued: { bg: 'rgba(35,113,123,.2)', color: '#7ab8be' },
+  error: { bg: 'rgba(226,75,74,.15)', color: '#f09595' },
+};
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -63,96 +63,186 @@ export default function HistoryPage() {
   }, [router]);
 
   return (
-    <main className='min-h-screen bg-gray-950 text-white'>
-      <div className='max-w-4xl mx-auto p-6'>
-        <div className='flex items-center justify-between mb-8'>
-          <div>
-            <h1 className='text-2xl font-semibold'>Task History</h1>
-            <p className='text-gray-500 text-sm mt-1'>
-              All your previous agent runs
-            </p>
-          </div>
+    <main
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#1F2B2D',
+        padding: '24px',
+      }}
+    >
+      <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+        {/* Nav */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '32px',
+          }}
+        >
+          <span style={{ fontSize: '18px', fontWeight: 500, color: '#12B2C1' }}>
+            Operative
+          </span>
           <Link
             href='/'
-            className='bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition'
+            style={{
+              background: '#0D8A9E',
+              color: '#E5F9F8',
+              textDecoration: 'none',
+              fontSize: '12px',
+              fontWeight: 500,
+              padding: '8px 16px',
+              borderRadius: '8px',
+            }}
           >
             + New Task
           </Link>
         </div>
 
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: 500, color: '#E5F9F8' }}>
+            Task History
+          </h1>
+          <p style={{ fontSize: '12px', color: '#7ab8be', marginTop: '4px' }}>
+            All your previous agent runs
+          </p>
+        </div>
+
         {loading ? (
-          <div className='text-gray-500 text-sm'>Loading...</div>
+          <p style={{ color: '#4a7f85', fontSize: '13px' }}>Loading...</p>
         ) : tasks.length === 0 ? (
-          <div className='text-center py-20'>
-            <p className='text-gray-500 text-sm'>No tasks yet.</p>
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <p style={{ color: '#4a7f85', fontSize: '13px' }}>No tasks yet.</p>
             <Link
               href='/'
-              className='text-blue-400 text-sm mt-2 inline-block hover:underline'
+              style={{
+                color: '#12B2C1',
+                fontSize: '13px',
+                marginTop: '8px',
+                display: 'inline-block',
+              }}
             >
               Run your first task →
             </Link>
           </div>
         ) : (
-          <div className='border border-gray-800 rounded-xl overflow-hidden'>
-            <div className='grid grid-cols-12 gap-4 px-4 py-3 bg-gray-900 border-b border-gray-800 text-xs font-medium text-gray-500 uppercase tracking-wide'>
-              <div className='col-span-6'>Goal</div>
-              <div className='col-span-2'>Status</div>
-              <div className='col-span-2'>Duration</div>
-              <div className='col-span-2 text-right'>When</div>
+          <div
+            style={{
+              border: '0.5px solid #23717B',
+              borderRadius: '12px',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 80px 80px 70px',
+                gap: '12px',
+                padding: '10px 20px',
+                background: '#243436',
+                borderBottom: '0.5px solid #23717B',
+                fontSize: '10px',
+                color: '#4a7f85',
+                letterSpacing: '.06em',
+              }}
+            >
+              <span>GOAL</span>
+              <span>STATUS</span>
+              <span>DURATION</span>
+              <span style={{ textAlign: 'right' }}>WHEN</span>
             </div>
 
-            {tasks.map((task, i) => (
-              <Link
-                key={task.id}
-                href={`/task/${task.id}`}
-                className={`grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-900/60 transition cursor-pointer ${
-                  i !== tasks.length - 1 ? 'border-b border-gray-800/60' : ''
-                }`}
-              >
-                <div className='col-span-6'>
-                  <p className='text-sm text-white truncate'>{task.goal}</p>
-                  <p className='text-xs text-gray-600 font-mono mt-0.5'>
-                    {task.id.slice(0, 8)}
-                  </p>
-                </div>
-
-                <div className='col-span-2'>
+            {tasks.map((task, i) => {
+              const s = STATUS_STYLE[task.status] ?? STATUS_STYLE.queued;
+              return (
+                <Link
+                  key={task.id}
+                  href={`/task/${task.id}`}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 80px 80px 70px',
+                    gap: '12px',
+                    padding: '14px 20px',
+                    alignItems: 'center',
+                    textDecoration: 'none',
+                    borderBottom:
+                      i !== tasks.length - 1
+                        ? '0.5px solid rgba(35,113,123,.2)'
+                        : 'none',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = 'rgba(35,113,123,.08)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = 'transparent')
+                  }
+                >
+                  <div style={{ overflow: 'hidden' }}>
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        color: '#E5F9F8',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {task.goal}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        color: '#4a7f85',
+                        marginTop: '2px',
+                      }}
+                    >
+                      {task.id.slice(0, 8)}
+                    </p>
+                  </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      STATUS_STYLES[task.status] ?? STATUS_STYLES.queued
-                    }`}
+                    style={{
+                      fontSize: '11px',
+                      padding: '3px 8px',
+                      borderRadius: '20px',
+                      fontWeight: 500,
+                      background: s.bg,
+                      color: s.color,
+                      display: 'inline-block',
+                    }}
                   >
                     {task.status}
                   </span>
-                </div>
-
-                <div className='col-span-2 text-sm text-gray-500'>
-                  {duration(task.created_at, task.completed_at) ??
-                    (task.status === 'running' ? (
-                      <span className='flex items-center gap-1.5'>
-                        <span className='w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse' />
-                        running
-                      </span>
-                    ) : (
-                      '—'
-                    ))}
-                </div>
-
-                <div className='col-span-2 text-right text-sm text-gray-500'>
-                  {timeAgo(task.created_at)}
-                </div>
-              </Link>
-            ))}
+                  <span style={{ fontSize: '12px', color: '#7ab8be' }}>
+                    {duration(task.created_at, task.completed_at) ??
+                      (task.status === 'running' ? 'running...' : '—')}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      color: '#4a7f85',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {timeAgo(task.created_at)}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
 
         {!loading && tasks.length > 0 && (
-          <div className='flex gap-6 mt-6 text-xs text-gray-600'>
-            <span>{tasks.length} total runs</span>
-            <span>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '16px' }}>
+            <span style={{ fontSize: '11px', color: '#4a7f85' }}>
+              {tasks.length} total runs
+            </span>
+            <span style={{ fontSize: '11px', color: '#4a7f85' }}>
               {tasks.filter((t) => t.status === 'done').length} completed
             </span>
-            <span>
+            <span style={{ fontSize: '11px', color: '#4a7f85' }}>
               {tasks.filter((t) => t.status === 'error').length} failed
             </span>
           </div>
