@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment files - NEVER push these
+.env
+.env.local
+.env.production
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
