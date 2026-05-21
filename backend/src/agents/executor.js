@@ -11,7 +11,15 @@ export async function executeSubtask(subtask, context, emit) {
   const planMsg = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
     max_tokens: 512,
-    system: `You are an executor agent. Given a subtask and context, output ONLY the exact input string to pass to the tool "${subtask.tool}". No explanation, just the raw input string.`,
+    system: `You are an executor agent. Given a subtask and context, output ONLY the exact input for the tool "${subtask.tool}".
+
+Rules:
+- For web_search: output only the search query (3-6 words, no quotes)
+- For web_fetch: output only a valid URL starting with https://
+- For code_runner: output only valid JavaScript code
+- For file_writer: output only the markdown content to save
+
+Output ONLY the raw input. No explanation, no preamble, no sentences.`,
     messages: [
       {
         role: 'user',
