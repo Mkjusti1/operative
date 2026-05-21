@@ -32,6 +32,12 @@ export default function HomePage() {
         body: JSON.stringify({ goal, userId: user.id }),
       });
       const { taskId, error: apiError } = await res.json();
+
+      if (res.status === 403) {
+        router.push('/blocked');
+        return;
+      }
+
       if (apiError) throw new Error(apiError);
       router.push(`/task/${taskId}`);
     } catch (err: any) {
